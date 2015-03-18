@@ -202,7 +202,6 @@ class Aggregator:
                     self.pub.publish(self.bridge.cv_to_imgmsg(self.image_out, encoding="rgb8"))
 
 
-
 def main():
     rospy.init_node('capture_monitor')
     args = rospy.myargv()
