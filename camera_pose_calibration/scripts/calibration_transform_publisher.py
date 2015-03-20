@@ -52,6 +52,8 @@ class CalibrationPublishManager:
         with self.lock:
             for name, pub in self.publish_list.iteritems():
                 pub.publish()
+                # need to do this - known bug in tf2_ros
+                rospy.sleep(0.1)
 
 
 
