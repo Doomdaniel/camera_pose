@@ -66,7 +66,7 @@ class ImageRenderer:
     def render(self, window):
         with self.lock:
             if self.image and self.image_time + rospy.Duration(8.0) > rospy.Time.now() and self.info_time + rospy.Duration(8.0) > rospy.Time.now():
-                cv.Resize(self.bridge.imgmsg_to_cv(self.image, 'rgb8'), window)
+                cv.Resize(cv.fromarray(self.bridge.imgmsg_to_cv2(self.image, 'rgb8')), window)
                 # render progress bar
                 interval = min(1,(self.interval / self.max_interval))
                 cv.Rectangle(window,
@@ -129,7 +129,7 @@ class Aggregator:
         w = 640
         h = 480
         self.image_out = cv.CreateMat(h, w, cv.CV_8UC3)
-        self.pub = rospy.Publisher('aggregated_image', Image)
+        self.pub = rospy.Publisher('aggregated_image', Image, queue_size=3)
         self.bridge = CvBridge()
 
         self.image_captured = get_image(["Successfully captured checkerboard"])
@@ -184,23 +184,22 @@ class Aggregator:
                 if self.capture_time+rospy.Duration(4.0) > rospy.Time.now():
                     if self.capture_time+rospy.Duration(2.0) > rospy.Time.now():
                         # Captured checkerboards
-                        self.pub.publish(self.bridge.cv_to_imgmsg(self.image_captured, encoding="rgb8"))
+                        self.pub.publish(self.bridge.cv2_to_imgmsg(numpy.squeeze(numpy.array(self.image_captured)), encoding="rgb8"))
                     elif self.calibrate_time+rospy.Duration(20.0) > rospy.Time.now():
                         # Succeeded optimization
-                        self.pub.publish(self.bridge.cv_to_imgmsg(self.image_optimized, encoding="rgb8"))
+                        self.pub.publish(self.bridge.cv2_to_imgmsg(numpy.squeeze(numpy.array(self.image_optimized)), encoding="rgb8"))
                         if beep_time+rospy.Duration(8.0) < rospy.Time.now():
                             beep_time = rospy.Time.now()
                             beep([(600, 63, 0.1), (800, 63, 0.1), (1000, 63, 0.3)])
                     else:
                         # Failed optimization
-                        self.pub.publish(self.bridge.cv_to_imgmsg(self.image_failed, encoding="rgb8"))
+                        self.pub.publish(self.bridge.cv2_to_imgmsg(numpy.squeeze(numpy.array(self.image_failed)), encoding="rgb8"))
                         if beep_time+rospy.Duration(4.0) < rospy.Time.now():
                             beep_time = rospy.Time.now()
                             beep([(400, 63, 0.1), (200, 63, 0.1), (100, 63, 0.6)])
 
                 else:
-                    self.pub.publish(self.bridge.cv_to_imgmsg(self.image_out, encoding="rgb8"))
-
+                    self.pub.publish(self.bridge.cv2_to_imgmsg(numpy.squeeze(numpy.array(self.image_out)), encoding="rgb8"))
 
 
 def main():
