@@ -1,8 +1,8 @@
 <launch>
   <arg name="camera1_ns" default="camera_a/rgb" />
-  <arg name="camera1_image" default="image_rect" />
+  <arg name="camera1_image" default="image_rect_color" />
   <arg name="camera2_ns" default="camera_b/rgb" />
-  <arg name="camera2_image" default="image_rect" />
+  <arg name="camera2_image" default="image" />
   <arg name="checker_rows" default="4"/>
   <arg name="checker_cols" default="5"/>
   <arg name="checker_size" default="0.0245"/>
@@ -46,7 +46,6 @@
 
   <!-- optimize camera poses -->
   <node type="run_optimization_online.py" pkg="camera_pose_calibration" name="cal_optimizer" output="screen"/>
-
 
   <!-- Visualization -->
   <node type="capture_monitor.py" pkg="camera_pose_calibration" name="capture_monitor" output="screen"
